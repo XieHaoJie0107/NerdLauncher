@@ -1,6 +1,7 @@
 package xhj.zime.com.nerdlauncher;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
@@ -9,7 +10,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -58,6 +58,7 @@ public class NerdLauncherFragment extends Fragment {
         mRecyclerView.setAdapter(new ActivityAdapter(activities));
     }
 
+
     private class ActivityAdapter extends RecyclerView.Adapter<ActivityHolder>{
         private final List<ResolveInfo> mActivities;
 
@@ -85,13 +86,14 @@ public class NerdLauncherFragment extends Fragment {
         }
     }
 
-    private class ActivityHolder extends RecyclerView.ViewHolder{
+    private class ActivityHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private ResolveInfo mResolveInfo;
         private TextView mNameTextView;
 
         public ActivityHolder(@NonNull View itemView) {
             super(itemView);
             mNameTextView = (TextView) itemView;
+            mNameTextView.setOnClickListener(this);
         }
 
         public void bindActivity(ResolveInfo resolveInfo){
@@ -99,6 +101,15 @@ public class NerdLauncherFragment extends Fragment {
             PackageManager pm = getActivity().getPackageManager();
             String appName = mResolveInfo.loadLabel(pm).toString();
             mNameTextView.setText(appName);
+        }
+
+        @Override
+        public void onClick(View view) {
+            ActivityInfo activityInfo = mResolveInfo.activityInfo;
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.setClassName(activityInfo.applicationInfo.packageName,activityInfo.name);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
         }
     }
 
